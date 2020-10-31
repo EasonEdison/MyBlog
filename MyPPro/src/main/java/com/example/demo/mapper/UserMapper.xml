@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UserMapper">
+    <!--这边没要求role权限，直接为null-->
+    <select id="loadUserByName" resultType="user">
+        SELECT * FROM user WHERE username=#{username}
+    </select>
+
+    <insert id="InsertAndReg" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO user SET username=#{username}, password=#{password}, nickname=#{nickname}
+    </insert>
+
+    <update id="updateUserEmail">
+        UPDATE user SET email=#{email} WHERE id=#{id}
+    </update>
+
+
+
+
+    <!--<select id="getUserByNickName" resultMap="BaseResultMap">-->
+        <!--SELECT u.*, r.`id` as rid, r.`name` as rname FROM user u, roles r,roles_user ru-->
+        <!--WHERE u.`id`=ru.`uid` AND r.`id`=ru.`rid` AND u.`id` NOT IN-->
+        <!--(SELECT u.`id` FROM user u, roles_user ru WHERE u.`id`=ru.`uid` AND ru.`rid`=1)-->
+        <!--<choose>-->
+            <!--<when test="nickname!=null and nickname!=''">-->
+                <!--and u.nickname like concat('%', #{nickname}, '%') ORDER BY u.`id`-->
+            <!--</when>-->
+            <!--<otherwise>-->
+                <!--ORDER BY u.`id` limit 20-->
+            <!--</otherwise>-->
+        <!--</choose>-->
+    <!--</select>-->
+
+    <select id="getUserByNickName" resultMap="BaseResultMap">
+        SELECT u.*, r.`id` as rid, r.`name` as rname FROM user u, roles r,roles_user ru
+        WHERE u.`id`=ru.`uid` AND r.`id`=ru.`rid` AND u.`id`
+        <choose>
+            <when test="nickname!=null and nickname!=''">
+                and u.nickname like concat('%', #{nickname}, '%') ORDER BY u.`id`
+            </when>
+            <otherwise>
+                ORDER BY u.`id` limit 20
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="getUserById" resultMap="BaseResultMap">
+        SELECT u.*, r.`id` AS rid, r.`name` AS rname FROM user u, roles r, roles_user ru
+        WHERE u.`id`=#{id} and ru.`uid`=u.`id` and ru.`rid`=r.`id`
+    </select>
+
+
+    <select id="getAllRole" resultType="role">
+        SELECT * FROM roles
+    </select>
+
+    <update id="updateUserEnabled">
+        UPDATE user SET enabled=#{enabled} WHERE id=#{id}
+    </update>
+
+    <delete id="deleteUserById">
+        DELETE FROM user WHERE id=#{id}
+    </delete>
+
+    <delete id="deleteUserRolesByUid">
+        DELETE FROM roles_user WHERE uid=#{uid}
+    </delete>
+
+    <insert id="setUserRoles">
+        INSERT INTO roles_user(rid, uid) VALUES
+        <foreach collection="rids" item="rid" separator=",">
+            (#{rid}, #{uid})
+        </foreach>
+    </insert>
+
+    <!--做映射-->
+    <resultMap id="BaseResultMap" type="user">
+        <!--前面是标准的-->
+        <!--少了个id忘记做了-->
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="nickname" property="nickname"/>
+        <result column="password" property="password"/>
+        <result column="enabled" property="enabled"/>
+        <result column="email" property="email"/>
+        <result column="userface" property="userface"/>
+        <result column="regTime" property="regTime"/>
+        <!--将搜索出的数据映射到类里面-->
+        <!--类中成员变量名、类型-->
+        <collection property="roles" ofType="role">
+            <!--搜索出来的列对应到类中的成员变量-->
+            <id column="rid" property="id"/>
+            <result column="rname" property="name"/>
+        </collection>
+    </resultMap>
+</mapper>

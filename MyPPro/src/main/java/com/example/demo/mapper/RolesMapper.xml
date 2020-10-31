@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.RolesMapper">
+    <insert id="addRoles">
+        INSERT INTO roles_user(rid, uid) VALUES
+        <foreach collection="roles" item="role" separator=','>
+            (#{role}, #{uid})
+        </foreach>
+    </insert>
+
+    <select id="getRolesByUid" parameterType="long" resultType="role">
+        SELECT * FROM roles r, roles_user ru
+        WHERE ru.`uid`=#{uid} AND ru.`rid`=r.`id`
+    </select>
+</mapper>
