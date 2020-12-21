@@ -11,5 +11,8 @@ public class main {
         System.out.println("7");
         System.out.println("7");
         System.out.println("7");
+        System.out.println("7");
+        System.out.println("7");
+        System.out.println("7");
     }
 }
